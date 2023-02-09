@@ -85,8 +85,8 @@ public class FileFinder {
 	 * directory, otherwise returns a list containing only the default path.
 	 *
 	 * @param start the starting path
-	 * @param defaultPath the default to include if the starting path is not a
-	 *   valid directory
+	 * @param defaultPath the default to include if the starting path is not a valid
+	 *   directory
 	 * @return a list of paths
 	 * @throws IOException if an IO error occurs
 	 *
@@ -94,8 +94,7 @@ public class FileFinder {
 	 * @see List#of()
 	 * @see Files#isDirectory(Path, java.nio.file.LinkOption...)
 	 */
-	public static List<Path> listText(Path start, Path defaultPath)
-			throws IOException {
+	public static List<Path> listText(Path start, Path defaultPath) throws IOException {
 		// TODO Implement list(Path, Path) reusing as much as possible
 		throw new UnsupportedOperationException("Not yet implemented.");
 	}
@@ -107,8 +106,46 @@ public class FileFinder {
 	 * @throws IOException if unable to list path
 	 */
 	public static void main(String[] args) throws IOException {
-		Path path = Path.of("src", "test", "resources", "simple");
-		System.out.println(Files.isDirectory(path));
-		System.out.println(listText(path));
+		Path simple = Path.of("src", "test", "resources", "simple");
+		Path hello = simple.resolve("hello.txt"); // text file
+		Path dir = simple.resolve("dir.txt"); // directory
+		Path nowhere = simple.resolve("nowhere.txt"); // does not exist
+
+		// demonstrates isDirectory and isRegularFile
+		System.out.println("Files.isDirectory");
+		System.out.println(simple + ": " + Files.isDirectory(simple));
+		System.out.println(hello + ": " + Files.isDirectory(hello));
+		System.out.println(dir + ": " + Files.isDirectory(dir));
+		System.out.println(nowhere + ": " + Files.isDirectory(nowhere));
+
+		System.out.println();
+		System.out.println("Files.isRegularFile");
+		System.out.println(simple + ": " + Files.isRegularFile(simple));
+		System.out.println(hello + ": " + Files.isRegularFile(hello));
+		System.out.println(dir + ": " + Files.isRegularFile(dir));
+		System.out.println(nowhere + ": " + Files.isRegularFile(nowhere));
+
+		// Demonstrates IS_TEXT predicate
+		System.out.println();
+		System.out.println("IS_TEXT");
+
+		try {
+			System.out.println(hello + ": " + IS_TEXT.test(hello));
+			System.out.println(dir + ": " + IS_TEXT.test(dir));
+		}
+		catch (Exception e) {
+			e.printStackTrace(System.out);
+		}
+
+		// Demonstrates listText
+		System.out.println();
+		System.out.println("listText");
+
+		try {
+			System.out.println(listText(simple));
+		}
+		catch (Exception e) {
+			e.printStackTrace(System.out);
+		}
 	}
 }
