@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * expressions and streams.
  *
  * @author CS 272 Software Development (University of San Francisco)
- * @version Fall 2022
+ * @version Spring 2023
  */
 public class FileFinder {
 	/**
