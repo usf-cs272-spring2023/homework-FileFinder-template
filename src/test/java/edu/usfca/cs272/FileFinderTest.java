@@ -1,13 +1,15 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,10 +55,8 @@ public class FileFinderTest {
 		 */
 		@Order(1)
 		@ParameterizedTest
-		@ValueSource(
-				strings = {
-						"animals_copy.text", "capital_extension.TXT", "empty.txt",
-						"position.teXt", "words.tExT", "digits.tXt" })
+		@ValueSource(strings = { "animals_copy.text", "capital_extension.TXT", "empty.txt",
+				"position.teXt", "words.tExT", "digits.tXt" })
 		public void testIsTextFile(String file) {
 			Path path = root.resolve(file);
 			Assertions.assertTrue(FileFinder.IS_TEXT.test(path), path::toString);
@@ -69,10 +69,8 @@ public class FileFinderTest {
 		 */
 		@Order(2)
 		@ParameterizedTest
-		@ValueSource(
-				strings = {
-						"double_extension.txt.html", "no_extension", "wrong_extension.html",
-						"dir.txt", "nowhere.txt", ".txt" })
+		@ValueSource(strings = { "double_extension.txt.html", "no_extension", "wrong_extension.html",
+				"dir.txt", "nowhere.txt", ".txt" })
 		public void testIsNotTextFile(String file) {
 			Path path = root.resolve(file);
 			Assertions.assertFalse(FileFinder.IS_TEXT.test(path), path::toString);
@@ -123,11 +121,8 @@ public class FileFinderTest {
 		@Test
 		@Order(3)
 		public void testNestedDirectory() throws IOException {
-			String actual = FileFinder.findText(root)
-					.distinct()
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
+			String actual = FileFinder.findText(root).distinct().sorted()
+					.map(Path::toString).collect(newLines);
 
 			Path[] paths = new Path[] {
 					root.resolve("symbols.txt"),
@@ -144,11 +139,7 @@ public class FileFinderTest {
 					root.resolve("words.tExT"), root.resolve("animals.text"),
 					root.resolve("hello.txt"), root.resolve("capitals.txt") };
 
-			String expected = Stream.of(paths)
-					.distinct()
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
+			String expected = Stream.of(paths).distinct().sorted().map(Path::toString).collect(newLines);
 
 			// String comparison for nicer debugging in JUnit (but less efficient)
 			Assertions.assertEquals(expected, actual);
@@ -211,20 +202,13 @@ public class FileFinderTest {
 		@Order(2)
 		public void testHtmlFiles() throws IOException {
 			Predicate<Path> html = p -> p.toString().endsWith(".html");
-
-			String actual = FileFinder.find(root, html)
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
+			String actual = FileFinder.find(root, html).sorted().map(Path::toString).collect(newLines);
 
 			Path[] paths = new Path[] {
 					root.resolve("double_extension.txt.html"),
 					root.resolve("wrong_extension.html") };
 
-			String expected = Stream.of(paths)
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
+			String expected = Stream.of(paths).sorted().map(Path::toString).collect(newLines);
 
 			// String comparison for nicer debugging in JUnit (but less efficient)
 			Assertions.assertEquals(expected, actual);
@@ -239,10 +223,8 @@ public class FileFinderTest {
 		@Test
 		@Order(3)
 		public void testSubdirectories() throws IOException {
-			String actual = FileFinder.find(root, Files::isDirectory)
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
+			String actual = FileFinder.find(root, Files::isDirectory).sorted()
+					.map(Path::toString).collect(newLines);
 
 			Path[] paths = new Path[] {
 					root, root.resolve(".txt"), root.resolve("a"),
@@ -251,10 +233,7 @@ public class FileFinderTest {
 					root.resolve("a").resolve("b").resolve("c").resolve("d"),
 					root.resolve("dir.txt") };
 
-			String expected = Stream.of(paths)
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
+			String expected = Stream.of(paths).sorted().map(Path::toString).collect(newLines);
 
 			// String comparison for nicer debugging in JUnit (but less efficient)
 			Assertions.assertEquals(expected, actual);
@@ -275,8 +254,7 @@ public class FileFinderTest {
 
 			try {
 				Files.deleteIfExists(symbolic);
-				Files.createSymbolicLink(symbolic.toAbsolutePath(),
-						root.toAbsolutePath());
+				Files.createSymbolicLink(symbolic.toAbsolutePath(), root.toAbsolutePath());
 			}
 			catch (Exception e) {
 				String warning = "Warning: Unable to test symbolic links on your system.";
@@ -364,15 +342,8 @@ public class FileFinderTest {
 					root.resolve("words.tExT"), root.resolve("animals.text"),
 					root.resolve("hello.txt"), root.resolve("capitals.txt"));
 
-			String actual = actualList.stream()
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
-
-			String expected = expectedList.stream()
-					.sorted()
-					.map(Path::toString)
-					.collect(Collectors.joining("\n"));
+			String actual = actualList.stream().sorted().map(Path::toString).collect(newLines);
+			String expected = expectedList.stream().sorted().map(Path::toString).collect(newLines);
 
 			// Uses String comparison for nicer debugging in JUnit (but less efficient)
 			Assertions.assertEquals(expected, actual);
@@ -515,9 +486,9 @@ public class FileFinderTest {
 		@Test
 		@Order(5)
 		public void testFileClass() throws IOException {
-			String source = Files.readString(
-					Path.of("src", "main", "java", "edu", "usfca", "cs272", "FileFinder.java"),
-					StandardCharsets.UTF_8);
+			Path base = Path.of("src", "main", "java", "edu", "usfca", "cs272");
+			Path file = base.resolve(FileFinder.class.getSimpleName() + ".java");
+			String source = Files.readString(file, UTF_8);
 			Assertions.assertFalse(source.contains("import java.io.File;"));
 			Assertions.assertFalse(source.contains(".toFile()"));
 		}
@@ -550,6 +521,9 @@ public class FileFinderTest {
 
 	/** Path to directory of text files */
 	public static final Path root = Path.of("src", "test", "resources", "simple");
+
+	/** Used to collect information into Strings with newlines */
+	public static final Collector<CharSequence, ?, String> newLines = Collectors.joining("\n");
 
 	/**
 	 * Runs before any tests to make sure environment is setup.
